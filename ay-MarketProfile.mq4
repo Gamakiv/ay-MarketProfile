@@ -1,10 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                             ay-MarketProfile.mq4 |
-//|                      Copyright © 2010, MetaQuotes Software Corp. |
+//|                      Copyright © 2021, MetaQuotes Software Corp. |
 //|                                        http://www.metaquotes.net |
 //+------------------------------------------------------------------+
-#property copyright "Copyright © 2011, ahmad.yani@hotmail.com"
-#property link      "ahmad.yani@hotmail.com"
+#property copyright "Copyright © 2021, https://t.me/gamakiv"
+#property link      "https://t.me/gamakiv"
+
 
 #property indicator_chart_window
 /*
@@ -136,21 +137,21 @@ int start()
    LookBack = MathMin( LookBack, iBarShift(NULL, giProfileTf, Time[Bars-1]) - 1 );
    LookBack = MathMin( LookBack, iBarShift(NULL, giProfileTf, iTime(NULL, giDataTf, iBars(NULL, giDataTf) - 1)) );
 
-   int ibar.proftf = 0, endbar.proftf = 0;   
+   int ibar_proftf = 0, endbar_proftf = 0;   
        
    //---create all profile on startup/new tfsrc bar
    //---and then only update the last tfsrc profile
    
-   if ( newBarProfileTf() ) { delObjs(); endbar.proftf = LookBack-1; } 
+   if ( newBarProfileTf() ) { delObjs(); endbar_proftf = LookBack-1; } 
    
-   double     aprice.step[][3]             // [ 3-->{price, count tpo, count vol} ]
+   double     aprice_step[][3]             // [ 3-->{price, count tpo, count vol} ]
             , hh, ll                       // profile
             , maxvol
             , vah                          // Value Area High
             , val                          // Value Area Low
             , totaltpo                     // Total TPO
             , totalvol;                    // Total Vol
-   datetime   dt.proftf;
+   datetime   dt_proftf;
    int        startbar                     // startbar on giDataTf
             , endbar                       // endbar on giDataTf
             , countps
@@ -162,34 +163,34 @@ int start()
 
             
     //---main loop --> day by day, week by week, month by month...         
-   for (ibar.proftf = endbar.proftf; ibar.proftf >= 0; ibar.proftf--)      
+   for (ibar_proftf = endbar_proftf; ibar_proftf >= 0; ibar_proftf--)      
    {
       
-      ArrayResize(aprice.step, 0);
+      ArrayResize(aprice_step, 0);
       
-      getStartAndEndBar(ibar.proftf, startbar, endbar);          
+      getStartAndEndBar(ibar_proftf, startbar, endbar);          
       
       if (startbar == -1) continue;
                           
       getHHLL(startbar, endbar, hh, ll);
                             
       getPriceTPO 
-         ( startbar, endbar, hh, ll, aprice.step, countps, maxtpo, 
+         ( startbar, endbar, hh, ll, aprice_step, countps, maxtpo, 
            maxtpoidx, totaltpo, maxvol, maxvolidx, totalvol );                         
       
       //continue;    
       drawPriceHistoAndPOCLines 
-         ( startbar, endbar, ibar.proftf, countps, aprice.step, maxtpo, 
+         ( startbar, endbar, ibar_proftf, countps, aprice_step, maxtpo, 
            maxtpoidx, maxvol, maxvolidx );
                                  
       //continue;
       getValueArea 
-         ( countps, aprice.step, maxtpo, maxtpoidx, totaltpo, maxvol, 
+         ( countps, aprice_step, maxtpo, maxtpoidx, totaltpo, maxvol, 
            maxvolidx, totalvol, vah, vahidx, val, validx );      
           
       //continue;
       drawValueArea 
-         ( startbar, endbar, ibar.proftf, countps, aprice.step, vah, 
+         ( startbar, endbar, ibar_proftf, countps, aprice_step, vah, 
            vahidx, val, validx );
  
    }//end for (ibartf = endbartf; ibartf >= 0; ibartf--)    
@@ -246,12 +247,12 @@ bool isOK()
 //+------------------------------------------------------------------+
 //| getStartAndEndBar                                                |
 //+------------------------------------------------------------------+
-void getStartAndEndBar(int ibar.proftf, int &startbar, int &endbar)
+void getStartAndEndBar(int ibar_proftf, int &startbar, int &endbar)
 {      
    
    int i, j;
-   datetime dt.proftf;     
-   datetime dt.proftf.next; 
+   datetime dt_proftf;     
+   datetime dt_proftf_next; 
       
    switch (giProfileTf)
    {
@@ -263,14 +264,14 @@ void getStartAndEndBar(int ibar.proftf, int &startbar, int &endbar)
          
          if (DayStartHour == 0)
          {
-           dt.proftf       = iTime( NULL, giProfileTf, ibar.proftf );
-           dt.proftf.next  = iTime( NULL, giProfileTf, ibar.proftf - 1 );         
-           startbar        = iBarShift ( NULL, giDataTf, dt.proftf);
-           endbar          = iBarShift ( NULL, giDataTf, dt.proftf.next - (giDataTf * 60) );   
+           dt_proftf       = iTime( NULL, giProfileTf, ibar_proftf );
+           dt_proftf_next  = iTime( NULL, giProfileTf, ibar_proftf - 1 );         
+           startbar        = iBarShift ( NULL, giDataTf, dt_proftf);
+           endbar          = iBarShift ( NULL, giDataTf, dt_proftf_next - (giDataTf * 60) );   
             //current day        
-           if (dt.proftf.next < dt.proftf) endbar = 0;         
+           if (dt_proftf_next < dt_proftf) endbar = 0;         
             // fix ibarshift on month\week start
-           if ( iTime(NULL, giDataTf, startbar) < dt.proftf ) startbar--; 
+           if ( iTime(NULL, giDataTf, startbar) < dt_proftf ) startbar--; 
            
            if (TimeDayOfWeek(iTime( NULL, giDataTf, startbar )) == 0) startbar = -1;
                 
@@ -283,10 +284,10 @@ void getStartAndEndBar(int ibar.proftf, int &startbar, int &endbar)
             if (TimeHour(dt) == DayStartHour && TimeMinute(dt) == 0 )
             {
                iday++;
-               if (iday == ibar.proftf) 
+               if (iday == ibar_proftf) 
                {
                   startbar = i;         
-                  if (ibar.proftf !=0) 
+                  if (ibar_proftf !=0) 
                   {
                      endbar  = iBarShift( NULL, giDataTf, dt + oneday - (giDataTf * 60) );                
                      if ( iTime(NULL, giDataTf, endbar) < dt + oneday - (giDataTf * 60) ) 
@@ -315,15 +316,15 @@ void getStartAndEndBar(int ibar.proftf, int &startbar, int &endbar)
          break;
          
       default:
-         dt.proftf      = iTime( NULL, giProfileTf, ibar.proftf );
-         dt.proftf.next = iTime( NULL, giProfileTf, ibar.proftf - 1 );
+         dt_proftf      = iTime( NULL, giProfileTf, ibar_proftf );
+         dt_proftf_next = iTime( NULL, giProfileTf, ibar_proftf - 1 );
          
-         startbar  = iBarShift ( NULL, giDataTf, dt.proftf);
-         endbar    = iBarShift ( NULL, giDataTf, dt.proftf.next - (giDataTf * 60) );
+         startbar  = iBarShift ( NULL, giDataTf, dt_proftf);
+         endbar    = iBarShift ( NULL, giDataTf, dt_proftf_next - (giDataTf * 60) );
          //current week.Month         
-         if (dt.proftf.next < dt.proftf) endbar = 0;         
+         if (dt_proftf_next < dt_proftf) endbar = 0;         
          // fix ibarshift on month\week start
-         if ( iTime(NULL, giDataTf, startbar) < dt.proftf ) startbar--;    
+         if ( iTime(NULL, giDataTf, startbar) < dt_proftf ) startbar--;    
                            
          break;
    }         
@@ -345,8 +346,11 @@ void getHHLL(int startbar, int endbar, double &hh, double &ll)
 void drawInfo()
 {
    
-   string info = "Volume Profile";
-   if (!UseVolumeProfile) info = "TPO Profile";
+   //string info = "Volume Profile";
+   string info = " ";
+   if (!UseVolumeProfile) 
+      //info = "TPO Profile";
+      info = " ";
    
    if (ObjectFind(gsPref+"lblinfo1") == -1)
     ObjectCreate (gsPref+"lblinfo1", OBJ_LABEL,0,0,0);
@@ -378,7 +382,7 @@ void getPriceTPO
    , int       endbar
    , double    hh
    , double    ll
-   , double    &aprice.step[][3]
+   , double    &aprice_step[][3]
    , int       &countps
    , int       &maxtpo
    , int       &maxtpoidx
@@ -397,17 +401,17 @@ void getPriceTPO
    totalvol      = 0.0;
    
    double     shh = hh; //start hh
-   double     profile.range       = MathMax(hh - ll, gdOneTick)
-            , mid.profile.price   = hh - (0.5 * profile.range);   
+   double     profile_range       = MathMax(hh - ll, gdOneTick)
+            , mid_profile_price   = hh - (0.5 * profile_range);   
             
    //--- populate price level     
    countps  = 0;          
    while (shh >= ll)
    {   
-      ArrayResize(aprice.step, countps+1);   
-      aprice.step [countps][PRICEIDX] = shh;
-      aprice.step [countps][TPOIDX]   = 0.0;
-      aprice.step [countps][VOLIDX]   = 0.0;
+      ArrayResize(aprice_step, countps+1);   
+      aprice_step [countps][PRICEIDX] = shh;
+      aprice_step [countps][TPOIDX]   = 0.0;
+      aprice_step [countps][VOLIDX]   = 0.0;
       
       shh -= gdOneTick;
       countps  ++;
@@ -417,61 +421,61 @@ void getPriceTPO
    
    //--- Counting tpo     
    int      i, j;
-   double   price.step;
+   double    price_step;
    
    for (i=0; i<countps; i++)
    {
-      price.step = aprice.step[i][PRICEIDX];
+       price_step = aprice_step[i][PRICEIDX];
       j = startbar;
       while ( j >= endbar)
       {            
          double hp        = iHigh  (NULL, giDataTf, j);
          double lp        = iLow   (NULL, giDataTf, j);         
-         double bar.vol   = iVolume(NULL, giDataTf, j);
-         double bar.range = MathMax( (hp - lp) / fpoint, gdOneTick );
-         double pip.vol   = bar.vol / bar.range;         
+         double bar_vol   = iVolume(NULL, giDataTf, j);
+         double bar_range = MathMax( (hp - lp) / fpoint, gdOneTick );
+         double pip_vol   = bar_vol / bar_range;         
          
-         if (  price.step >= lp && price.step <= hp )   
+         if (   price_step >= lp &&  price_step <= hp )   
          {
-            aprice.step[i][TPOIDX] += 1;  
-            aprice.step[i][VOLIDX] += pip.vol;
+            aprice_step[i][TPOIDX] += 1;  
+            aprice_step[i][VOLIDX] += pip_vol;
             totaltpo += 1; 
-            totalvol += pip.vol;
+            totalvol += pip_vol;
             // save maxtpo
-            if (aprice.step[i][TPOIDX] > maxtpo) 
+            if (aprice_step[i][TPOIDX] > maxtpo) 
             {
-               maxtpo    = aprice.step[i][TPOIDX];
+               maxtpo    = aprice_step[i][TPOIDX];
                maxtpoidx = i;               
             }
             
-            if (aprice.step[i][TPOIDX] == maxtpo) 
+            if (aprice_step[i][TPOIDX] == maxtpo) 
             {
                // take the closes to the middle of profile range
-               if (   MathAbs(mid.profile.price - aprice.step[i][PRICEIDX]) 
-                    < MathAbs(mid.profile.price - aprice.step[maxtpoidx][PRICEIDX]) 
+               if (   MathAbs(mid_profile_price - aprice_step[i][PRICEIDX]) 
+                    < MathAbs(mid_profile_price - aprice_step[maxtpoidx][PRICEIDX]) 
                    )
                {
-                  maxtpo    = aprice.step[i][TPOIDX];
+                  maxtpo    = aprice_step[i][TPOIDX];
                   maxtpoidx = i;
                }
             }
             // end save maxtpo
             
             // save maxvol
-            if (aprice.step[i][VOLIDX] > maxvol) 
+            if (aprice_step[i][VOLIDX] > maxvol) 
             {
-               maxvol    = aprice.step[i][VOLIDX];
+               maxvol    = aprice_step[i][VOLIDX];
                maxvolidx = i;               
             }
             
-            if (aprice.step[i][VOLIDX] == maxvol) 
+            if (aprice_step[i][VOLIDX] == maxvol) 
             {
                // take the closes to the middle of profile range
-               if (   MathAbs(mid.profile.price - aprice.step[i][PRICEIDX]) 
-                    < MathAbs(mid.profile.price - aprice.step[maxvolidx][PRICEIDX]) 
+               if (   MathAbs(mid_profile_price - aprice_step[i][PRICEIDX]) 
+                    < MathAbs(mid_profile_price - aprice_step[maxvolidx][PRICEIDX]) 
                    )
                {
-                  maxvol    = aprice.step[i][VOLIDX];
+                  maxvol    = aprice_step[i][VOLIDX];
                   maxvolidx = i;
                }
             }
@@ -494,9 +498,9 @@ void drawPriceHistoAndPOCLines
 (
      int    startbar
    , int    endbar  
-   , int    ibar.proftf  
+   , int    ibar_proftf  
    , int    countps
-   , double aprice.step[][]
+   , double aprice_step[][]
    , int    maxtpo
    , int    maxtpoidx
    , double maxvol
@@ -507,31 +511,31 @@ void drawPriceHistoAndPOCLines
    int      numtpo; 
    double   numvol;
    int      step, i;
-   int      chart.startbar = iBarShift( NULL, 0, iTime(NULL, giDataTf, startbar) );
-   int      chart.endbar   = iBarShift( NULL, 0, iTime(NULL, giDataTf, endbar) );
-   int      numbar         = chart.startbar - chart.endbar;
+   int      chart_startbar = iBarShift( NULL, 0, iTime(NULL, giDataTf, startbar) );
+   int      chart_endbar   = iBarShift( NULL, 0, iTime(NULL, giDataTf, endbar) );
+   int      numbar         = chart_startbar - chart_endbar;
    color    clr; 
-   datetime t1 = Time[chart.startbar], t2;
-   string   strdt.proftf = TimeToStr (iTime (NULL, giProfileTf, ibar.proftf), TIME_DATE);
-   double   lprice = aprice.step[countps-1][0]; 
+   datetime t1 = Time[chart_startbar], t2;
+   string   strdt_proftf = TimeToStr (iTime (NULL, giProfileTf, ibar_proftf), TIME_DATE);
+   double   lprice = aprice_step[countps-1][0]; 
    
    
    //--- draw price histo
    if (ShowPriceHistogram)
    {   
       
-      if (ibar.proftf == 0) 
+      if (ibar_proftf == 0) 
       {
          if (UseVolumeProfile) 
-            delObjs( gsPref + "#" + ibar.proftf + ".histovol.");  
+            delObjs( gsPref + "#" + ibar_proftf + ".histovol.");  
          else 
-            delObjs( gsPref + "#" + ibar.proftf + ".histotpo.");
+            delObjs( gsPref + "#" + ibar_proftf + ".histotpo.");
       }
        
       for (step=0; step<countps; step += giStep)      
       {
-         price1   = aprice.step[step][PRICEIDX];
-         price2   = aprice.step[step+(giStep)][PRICEIDX];
+         price1   = aprice_step[step][PRICEIDX];
+         price2   = aprice_step[step+(giStep)][PRICEIDX];
       
          if (MathCeil(dstep/2) == dstep/2) clr = HistoColor1;
          else clr = HistoColor2;
@@ -541,17 +545,17 @@ void drawPriceHistoAndPOCLines
             numtpo   = 0;
       
             for (i=step; i < step+giStep; i++)
-               numtpo = MathMax( numtpo, aprice.step[i][TPOIDX] );
+               numtpo = MathMax( numtpo, aprice_step[i][TPOIDX] );
       
             double x2 = ((giDataTf/1.0)/Period()) * numtpo;
             
             numtpo = MathCeil( x2 ) ;
             
-            t2 = Time[chart.startbar - numtpo] ;
+            t2 = Time[chart_startbar - numtpo] ;
                   
             if (t2<=t1) t2 = t1 + (Period()*60);         
       
-            createRect( "#" + ibar.proftf + ".histotpo." + DoubleToStr(price1,fdigits)
+            createRect( "#" + ibar_proftf + ".histotpo." + DoubleToStr(price1,fdigits)
                , price1,                  t1
                , MathMax(price2, lprice), t2
                , clr ); 
@@ -560,13 +564,13 @@ void drawPriceHistoAndPOCLines
          {            
             numvol = 0.0;
             for (i=step; i< step+giStep; i++)
-              numvol   = MathMax(numvol, (aprice.step[i][VOLIDX] / maxvol) * numbar );   
+              numvol   = MathMax(numvol, (aprice_step[i][VOLIDX] / maxvol) * numbar );   
       
             //numtpo vol;  
             numtpo = MathCeil((VolAmplitudePercent/100.0)*numvol);   
       
-            t2 = Time[chart.startbar - numtpo] ;
-            createRect( "#" + ibar.proftf + ".histovol." + DoubleToStr(price1,fdigits)
+            t2 = Time[chart_startbar - numtpo] ;
+            createRect( "#" + ibar_proftf + ".histovol." + DoubleToStr(price1,fdigits)
                , price1,                  t1
                , MathMax(price2, lprice), t2
                , clr );             
@@ -580,7 +584,7 @@ void drawPriceHistoAndPOCLines
    //--end draw price histo
       
    //--- draw poc lines
-   t2 = Time[chart.startbar] + (2 * giProfileTf * 60);
+   t2 = Time[chart_startbar] + (2 * giProfileTf * 60);
 
    int idx = maxvolidx;
    
@@ -589,13 +593,13 @@ void drawPriceHistoAndPOCLines
    if (!UseVolumeProfile) idx   = maxtpoidx;
    
    clr = POCColor;
-   if ( ibar.proftf != 0 )
+   if ( ibar_proftf != 0 )
    {
       double hh, ll;
       getHHLL(endbar-1, 0, hh, ll);
       
-      if ( (aprice.step[ idx ][PRICEIDX] > hh && aprice.step[ idx ][PRICEIDX] > ll)
-         ||(aprice.step[ idx ][PRICEIDX] < hh && aprice.step[ idx ][PRICEIDX] < ll) )
+      if ( (aprice_step[ idx ][PRICEIDX] > hh && aprice_step[ idx ][PRICEIDX] > ll)
+         ||(aprice_step[ idx ][PRICEIDX] < hh && aprice_step[ idx ][PRICEIDX] < ll) )
       {
          clr = VirginPOCColor;
          spoc = ".VPOC ";
@@ -603,17 +607,17 @@ void drawPriceHistoAndPOCLines
    }  
    
    
-   if (ibar.proftf <= ExtendedPocLines || ibar.proftf == 0) 
+   if (ibar_proftf <= ExtendedPocLines || ibar_proftf == 0) 
    {
       t2 = Time[0] + 10*Period()*60;
       
-      createText( "#" + ibar.proftf +".1.1.poc.price"   
+      createText( "#" + ibar_proftf +".1.1.poc.price"   
          , t2 + (3 * Period() * 60)
-         , aprice.step[ idx ][PRICEIDX]
+         , aprice_step[ idx ][PRICEIDX]
          , addStr(
-            ProfileTimeframe + "#" + ibar.proftf + spoc
-            + StringSubstr( strdt.proftf, 2, 8 )+" "
-            + DoubleToStr( aprice.step[ idx ][PRICEIDX], fdigits )
+            ProfileTimeframe + "#" + ibar_proftf + spoc
+            + StringSubstr( strdt_proftf, 2, 8 )+" "
+            + DoubleToStr( aprice_step[ idx ][PRICEIDX], fdigits )
             , " ", 60
             )
          , 8, "Arial Narrow", clr
@@ -622,9 +626,9 @@ void drawPriceHistoAndPOCLines
 
    bool backg = true;
    if (spoc == ".VPOC ") backg = false;
-   createTl("#" + ibar.proftf + ".1.1.poc"
-      , t1, aprice.step[ idx ][PRICEIDX]
-      , t2, aprice.step[ idx ][PRICEIDX]
+   createTl("#" + ibar_proftf + ".1.1.poc"
+      , t1, aprice_step[ idx ][PRICEIDX]
+      , t2, aprice_step[ idx ][PRICEIDX]
       , clr, STYLE_SOLID, 1, backg
       );   
    
@@ -634,11 +638,11 @@ void drawPriceHistoAndPOCLines
    
       double dopen  = iOpen (NULL, giDataTf, startbar);
       double dclose = iClose(NULL, giDataTf, endbar);
-      createArw("#0.0.0.0" + ibar.proftf + ".open", dopen
-         , Time[chart.startbar], 2, OpenColor);
+      createArw("#0.0.0.0" + ibar_proftf + ".open", dopen
+         , Time[chart_startbar], 2, OpenColor);
    
-      createArw("#0.0.0.0" + ibar.proftf + ".close", dclose
-         , Time[chart.startbar], 2, CloseColor);
+      createArw("#0.0.0.0" + ibar_proftf + ".close", dclose
+         , Time[chart_startbar], 2, CloseColor);
    }        
 
 }
@@ -648,7 +652,7 @@ void drawPriceHistoAndPOCLines
 void getValueArea
 (
      int      countps
-   , double   aprice.step[][]
+   , double   aprice_step[][]
    , int      maxtpo
    , int      maxtpoidx      
    , double   totaltpo
@@ -673,7 +677,7 @@ void getValueArea
    }
    
    double vatpo  = (VATPOPercent/100) * total;      
-   double tpo    = aprice.step[ idx ][ idx2 ];   
+   double tpo    = aprice_step[ idx ][ idx2 ];   
    double tpo2upper, tpo2lower;
    int    upperidx = 1, lastupperidx = 1; 
    int    loweridx = 1, lastloweridx = 1; 
@@ -681,10 +685,10 @@ void getValueArea
    while (tpo <= vatpo)
    {
 
-      double utpo1 = aprice.step[ idx - upperidx ][idx2];
-      double ltpo1 = aprice.step[ idx + loweridx ][idx2];
-      double utpo2 = aprice.step[ idx - (upperidx+1) ][idx2];
-      double ltpo2 = aprice.step[ idx + (loweridx+1) ][idx2];
+      double utpo1 = aprice_step[ idx - upperidx ][idx2];
+      double ltpo1 = aprice_step[ idx + loweridx ][idx2];
+      double utpo2 = aprice_step[ idx - (upperidx+1) ][idx2];
+      double ltpo2 = aprice_step[ idx + (loweridx+1) ][idx2];
       
       //check if vatpo reached by a single step                  
       if ( utpo1 >= ltpo1 && tpo + utpo1 >= vatpo )
@@ -723,8 +727,8 @@ void getValueArea
    
    vahidx = idx - lastupperidx;
    validx = idx + lastloweridx;
-   vah    = aprice.step[ idx-(lastupperidx) ][0];
-   val    = aprice.step[ idx+(lastloweridx) ][0];
+   vah    = aprice_step[ idx-(lastupperidx) ][0];
+   val    = aprice_step[ idx+(lastloweridx) ][0];
 
 }
 //+------------------------------------------------------------------+
@@ -734,22 +738,22 @@ void drawValueArea
 (
      int    startbar
    , int    endbar
-   , int    ibar.proftf
+   , int    ibar_proftf
    , int    countps
-   , double aprice.step[][]
+   , double aprice_step[][]
    , double vah
    , int    vahidx
    , double val
    , int    validx
 )
 {
-   int      chart.startbar = iBarShift( NULL, 0, iTime(NULL, giDataTf, startbar) );
-   int      chart.endbar   = iBarShift( NULL, 0, iTime(NULL, giDataTf, endbar - 1) ) ;   
+   int      chart_startbar = iBarShift( NULL, 0, iTime(NULL, giDataTf, startbar) );
+   int      chart_endbar   = iBarShift( NULL, 0, iTime(NULL, giDataTf, endbar - 1) ) ;   
    int      numtpo;
    int      step;
-   datetime dtva1          = Time[chart.startbar];
-   datetime dtva2          = Time[chart.endbar]; //iTime(NULL, giProfileTf, ibar.proftf-1); 
-   double   lprice         = aprice.step[countps-1][0];     
+   datetime dtva1          = Time[chart_startbar];
+   datetime dtva2          = Time[chart_endbar]; //iTime(NULL, giProfileTf, ibar_proftf-1); 
+   double   lprice         = aprice_step[countps-1][0];     
 
    //current profile   
    if (endbar == 0 ) dtva2 = Time[0] + 10*Period()*60;
@@ -757,11 +761,11 @@ void drawValueArea
    int      argb[3];
    intToRGB(VAColor, argb);      
 
-   if (ibar.proftf == 0) 
+   if (ibar_proftf == 0) 
    {
-      delObjs( gsPref + "#" + ibar.proftf + ".0.0.0.va.");
-      //ObjectDelete( gsPref + "#" + ibar.proftf + ".0.0.0.vah");
-      //ObjectDelete( gsPref + "#" + ibar.proftf + ".0.0.0.val");
+      delObjs( gsPref + "#" + ibar_proftf + ".0.0.0.va.");
+      //ObjectDelete( gsPref + "#" + ibar_proftf + ".0.0.0.vah");
+      //ObjectDelete( gsPref + "#" + ibar_proftf + ".0.0.0.val");
    }
 
    int      iclr, i, shiftx;   
@@ -778,26 +782,26 @@ void drawValueArea
          if ( step > validx ) break;
          //if ( step < vahidx ) continue;
       
-         price1   = aprice.step[ step ][0];
-         price2   = aprice.step[ step+giStep ][0];
+         price1   = aprice_step[ step ][0];
+         price2   = aprice_step[ step+giStep ][0];
          
          if (price2 > vah) continue;
             
          dtva1  = MathMax(
-              ObjectGet(gsPref + "#" + ibar.proftf + ".histotpo." + DoubleToStr(price1, fdigits), OBJPROP_TIME2 )
-            , ObjectGet(gsPref + "#" + ibar.proftf + ".histovol." + DoubleToStr(price1, fdigits), OBJPROP_TIME2 )
+              ObjectGet(gsPref + "#" + ibar_proftf + ".histotpo." + DoubleToStr(price1, fdigits), OBJPROP_TIME2 )
+            , ObjectGet(gsPref + "#" + ibar_proftf + ".histovol." + DoubleToStr(price1, fdigits), OBJPROP_TIME2 )
             ); 
          //shadow effect
          //dtva1 += (Period() * 60); 
       
-         if ( dtva1 < Time[chart.startbar] ) dtva1 = Time[0] + Period()*60;   
-         if ( !ShowPriceHistogram ) dtva1 = Time[chart.startbar];      
+         if ( dtva1 < Time[chart_startbar] ) dtva1 = Time[0] + Period()*60;   
+         if ( !ShowPriceHistogram ) dtva1 = Time[chart_startbar];      
          //if ( dtva2 < dtva1 ) dtva2  = Time[0] + 10*Period()*60;
       
          //rect @vah
          if (vah <= price1 && vah >= price2) price1 = vah;
       
-         createRect("#" + ibar.proftf + ".0.0.0.va." + vaidx
+         createRect("#" + ibar_proftf + ".0.0.0.va." + vaidx
             , price1, dtva1 
             , MathMax(price2, val), dtva2
             , RGB(argb[0]+iclr, argb[1]+iclr, argb[2]+iclr)
@@ -823,20 +827,20 @@ void drawValueArea
    //draw vah and val lines
    if (ShowVAHVALLines)
    {
-      if(dtva2 < Time[chart.startbar]) dtva2 = Time[0] + (10*Period()*60);
+      if(dtva2 < Time[chart_startbar]) dtva2 = Time[0] + (10*Period()*60);
       
       int width = 1;
       if (!ShowValueArea) width = 2;
    
-      createTl("#" + ibar.proftf + ".0.0.0.vah"
-         , Time[chart.startbar], aprice.step[ vahidx ][PRICEIDX]
-         , dtva2,                aprice.step[ vahidx ][PRICEIDX]
+      createTl("#" + ibar_proftf + ".0.0.0.vah"
+         , Time[chart_startbar], aprice_step[ vahidx ][PRICEIDX]
+         , dtva2,                aprice_step[ vahidx ][PRICEIDX]
          , VALinesColor, STYLE_SOLID, width
          );       
          
-      createTl("#" + ibar.proftf + ".0.0.0.val"
-         , Time[chart.startbar], aprice.step[ validx ][PRICEIDX]
-         , dtva2,                aprice.step[ validx ][PRICEIDX]
+      createTl("#" + ibar_proftf + ".0.0.0.val"
+         , Time[chart_startbar], aprice_step[ validx ][PRICEIDX]
+         , dtva2,                aprice_step[ validx ][PRICEIDX]
          , VALinesColor, STYLE_SOLID, width
          );          
    } 
@@ -845,13 +849,19 @@ void drawValueArea
 //+------------------------------------------------------------------+
 //|add char at beginning or end of text                              |
 //+------------------------------------------------------------------+
-string addStr(string str, string char, int maxlength, bool atbeginning = true)
+string addStr(string str, string char_, int maxlength, bool atbeginning = true)
 {
    int l = maxlength - StringLen(str);
    for (int i=0; i<l; i++)
    {
-      if (atbeginning) str = char + str;
-      else str = str + char;
+      if (atbeginning)          
+         str = char_ + str;
+         
+      else 
+         {
+            str = str + char_;
+         }
+         
    }
       
    return(str);
@@ -1059,17 +1069,3 @@ void intToRGB(int clr, int &argb[] )
 }  
 //+------------------------------------------------------------------+
 
-/*
-sugestions v1.31
-http://www.forexfactory.com/showpost.php?p=4432129&postcount=629
-@mima
-Very good, I like that histogram can be false/true...VA is 1st standard deviation...so there is need for 2nd , 3rd and extremes(excesses)...Hopefully it will be in next revision. Thank you.
-
-http://www.forexfactory.com/showpost.php?p=4432111&postcount=628
-@kave
-PS: One thing i notice that if the POC & VPC is align the POC overlay onto the VPC as shown here, (those 2 POC of 23rd & 24th). Since the 24th Feb qualifies as a VPC, is it possible let the VPC line to be overlayed on top instead??
-http://www.forexfactory.com/showpost.php?p=4433083&postcount=634
-@jamie
-One comment, for the volume based profile is it possible to reduce the amplitude of the profile so that it doesn't extend so far to the right?
-
-*/
