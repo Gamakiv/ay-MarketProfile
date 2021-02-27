@@ -1,11 +1,10 @@
 //+------------------------------------------------------------------+
 //|                                             ay-MarketProfile.mq4 |
-//|                      Copyright © 2021, MetaQuotes Software Corp. |
+//|                      Copyright © 2010, MetaQuotes Software Corp. |
 //|                                        http://www.metaquotes.net |
 //+------------------------------------------------------------------+
-#property copyright "Copyright © 2021, https://t.me/gamakiv"
-#property link      "https://t.me/gamakiv"
-
+#property copyright "Copyright © 2011, ahmad.yani@hotmail.com"
+#property link      "ahmad.yani@hotmail.com"
 
 #property indicator_chart_window
 /*
@@ -44,6 +43,7 @@ extern bool       ShowPriceHistogram      = true;
 extern bool       ShowValueArea           = true;
 extern bool       ShowVAHVALLines         = true;
 extern bool       ShowOpenCloseArrow      = true;
+extern bool       ShowDataTextPOC         = False;
 
 extern string     spr1                    = "design & colors..";
 extern double     VolAmplitudePercent     = 40.0;
@@ -366,7 +366,7 @@ void drawInfo()
         ObjectCreate (gsPref+"lblinfo2", OBJ_LABEL,0,0,0);
       
       ObjectSet    (gsPref+"lblinfo2", OBJPROP_CORNER, 3);
-      ObjectSetText(gsPref+"lblinfo2", "DayStartHour: " + DayStartHour, 8, "Tahoma", InfoColor);
+     // ObjectSetText(gsPref+"lblinfo2", "DayStartHour: " + DayStartHour, 8, "Tahoma", InfoColor);
       ObjectSet    (gsPref+"lblinfo2", OBJPROP_XDISTANCE, 10);
       ObjectSet    (gsPref+"lblinfo2", OBJPROP_YDISTANCE, 5);            
    }
@@ -610,18 +610,22 @@ void drawPriceHistoAndPOCLines
    if (ibar_proftf <= ExtendedPocLines || ibar_proftf == 0) 
    {
       t2 = Time[0] + 10*Period()*60;
-      
-      createText( "#" + ibar_proftf +".1.1.poc.price"   
-         , t2 + (3 * Period() * 60)
-         , aprice_step[ idx ][PRICEIDX]
-         , addStr(
-            ProfileTimeframe + "#" + ibar_proftf + spoc
-            + StringSubstr( strdt_proftf, 2, 8 )+" "
-            + DoubleToStr( aprice_step[ idx ][PRICEIDX], fdigits )
-            , " ", 60
-            )
-         , 8, "Arial Narrow", clr
-         );                       
+     
+ 
+     if(ShowDataTextPOC == True)
+      {
+         createText( "#" + ibar_proftf +".1.1.poc.price"   
+            , t2 + (3 * Period() * 60)
+            , aprice_step[ idx ][PRICEIDX]
+            , addStr(
+               ProfileTimeframe + "#" + ibar_proftf + spoc
+               + StringSubstr( strdt_proftf, 2, 8 )+" "
+               + DoubleToStr( aprice_step[ idx ][PRICEIDX], fdigits )
+               , " ", 60
+               )
+            , 8, "Arial Narrow", clr
+            );                       
+     }     
    }    
 
    bool backg = true;
@@ -1068,4 +1072,3 @@ void intToRGB(int clr, int &argb[] )
       
 }  
 //+------------------------------------------------------------------+
-
